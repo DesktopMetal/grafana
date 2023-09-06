@@ -82,12 +82,12 @@ const mainConfig: StorybookConfig = {
       to: '/public/fonts',
     },
     {
-      from: '../../../public/img/grafana_text_logo-dark.svg',
-      to: '/public/img/grafana_text_logo-dark.svg',
+      from: '../../../public/img/dm-text-logo-dark.svg',
+      to: '/public/img/dm-text-logo-dark.svg',
     },
     {
-      from: '../../../public/img/grafana_text_logo-light.svg',
-      to: '/public/img/grafana_text_logo-light.svg',
+      from: '../../../public/img/dm-text-logo-light.svg',
+      to: '/public/img/dm-text-logo-light.svg',
     },
     {
       from: '../../../public/img/fav32.png',

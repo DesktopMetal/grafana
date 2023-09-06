@@ -29,9 +29,9 @@ export function setPublicDashboardFooterConfigFn(fn: typeof getPublicDashboardFo
 }
 export let getPublicDashboardFooterConfig = (): PublicDashboardFooterCfg => ({
   hide: false,
-  text: 'powered by Grafana',
-  logo: 'public/img/grafana_icon.svg',
-  link: 'https://grafana.com/',
+  text: 'powered by Live Monitor',
+  logo: 'public/img/desktopmetal-logo.svg',
+  link: 'https://www.desktopmetal.com/',
 });
 
 const getStyles = (theme: GrafanaTheme2) => ({
