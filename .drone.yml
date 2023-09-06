@@ -2959,6 +2959,141 @@ volumes:
 ---
 clone:
   retries: 3
+depends_on: []
+environment:
+  EDITION: oss
+image_pull_secrets:
+- dockerconfigjson
+kind: pipeline
+name: nightly-test-frontend
+node:
+  type: no-parallel
+platform:
+  arch: amd64
+  os: linux
+services: []
+steps:
+- commands:
+  - echo $DRONE_RUNNER_NAME
+  image: alpine:3.17.1
+  name: identify-runner
+- commands:
+  - mkdir -p bin
+  - curl -fL -o bin/grabpl https://grafana-downloads.storage.googleapis.com/grafana-build-pipeline/v3.0.41/grabpl
+  - chmod +x bin/grabpl
+  image: byrnedo/alpine-curl:0.1.8
+  name: grabpl
+- commands:
+  - yarn install --immutable
+  depends_on: []
+  image: grafana/build-container:1.7.5
+  name: yarn-install
+- commands:
+  - yarn betterer ci
+  depends_on:
+  - yarn-install
+  image: grafana/build-container:1.7.5
+  name: betterer-frontend
+- commands:
+  - yarn run ci:test-frontend
+  depends_on:
+  - yarn-install
+  environment:
+    TEST_MAX_WORKERS: 50%
+  image: grafana/build-container:1.7.5
+  name: test-frontend
+trigger:
+  event:
+    include:
+    - promote
+  target:
+    include:
+    - nightly
+type: docker
+volumes:
+- host:
+    path: /var/run/docker.sock
+  name: docker
+---
+clone:
+  retries: 3
+depends_on: []
+environment:
+  EDITION: oss
+image_pull_secrets:
+- dockerconfigjson
+kind: pipeline
+name: nightly-test-backend
+node:
+  type: no-parallel
+platform:
+  arch: amd64
+  os: linux
+services: []
+steps:
+- commands:
+  - echo $DRONE_RUNNER_NAME
+  image: alpine:3.17.1
+  name: identify-runner
+- commands:
+  - go build -o ./bin/build -ldflags '-extldflags -static' ./pkg/build/cmd
+  depends_on: []
+  environment:
+    CGO_ENABLED: 0
+  image: golang:1.20.6
+  name: compile-build-cmd
+- commands:
+  - '# It is required that code generated from Thema/CUE be committed and in sync
+    with its inputs.'
+  - '# The following command will fail if running code generators produces any diff
+    in output.'
+  - CODEGEN_VERIFY=1 make gen-cue
+  depends_on: []
+  image: grafana/build-container:1.7.5
+  name: verify-gen-cue
+- commands:
+  - '# It is required that generated jsonnet is committed and in sync with its inputs.'
+  - '# The following command will fail if running code generators produces any diff
+    in output.'
+  - CODEGEN_VERIFY=1 make gen-jsonnet
+  depends_on: []
+  image: grafana/build-container:1.7.5
+  name: verify-gen-jsonnet
+- commands:
+  - make gen-go
+  depends_on:
+  - verify-gen-cue
+  image: grafana/build-container:1.7.5
+  name: wire-install
+- commands:
+  - go test -tags requires_buildifer -short -covermode=atomic -timeout=5m ./pkg/...
+  depends_on:
+  - wire-install
+  image: grafana/build-container:1.7.5
+  name: test-backend
+- commands:
+  - go test -count=1 -covermode=atomic -timeout=5m -run '^TestIntegration' $(find
+    ./pkg -type f -name '*_test.go' -exec grep -l '^func TestIntegration' '{}' '+'
+    | grep -o '\(.*\)/' | sort -u)
+  depends_on:
+  - wire-install
+  image: grafana/build-container:1.7.5
+  name: test-backend-integration
+trigger:
+  event:
+    include:
+    - promote
+  target:
+    include:
+    - nightly
+type: docker
+volumes:
+- host:
+    path: /var/run/docker.sock
+  name: docker
+---
+clone:
+  retries: 3
 depends_on:
 - main-test-backend
 - main-test-frontend
@@ -2991,8 +3126,7 @@ steps:
       from_secret: packages_gpg_private_key
     GPG_PUBLIC_KEY:
       from_secret: packages_gpg_public_key
-  failure: ignore
-  image: grafana/grafana-build:main
+  image: grafana/grafana-build:dev-66149b8
   name: rgm-build
   volumes:
   - name: docker
@@ -3049,7 +3183,7 @@ steps:
       from_secret: packages_gpg_private_key
     GPG_PUBLIC_KEY:
       from_secret: packages_gpg_public_key
-  image: grafana/grafana-build:main
+  image: grafana/grafana-build:dev-66149b8
   name: rgm-build
   volumes:
   - name: docker
@@ -3133,6 +3267,82 @@ type: docker
 volumes:
 - host:
     path: //./pipe/docker_engine/
+  name: docker
+---
+clone:
+  retries: 3
+depends_on:
+- nightly-test-backend
+- nightly-test-frontend
+image_pull_secrets:
+- dockerconfigjson
+kind: pipeline
+name: rgm-nightly-prerelease
+node:
+  type: no-parallel
+platform:
+  arch: amd64
+  os: linux
+services: []
+steps:
+- commands:
+  - export GRAFANA_DIR=$$(pwd)
+  - cd /src && ./scripts/drone_build_nightly_grafana.sh
+  environment:
+    _EXPERIMENTAL_DAGGER_CLOUD_TOKEN:
+      from_secret: dagger_token
+    DESTINATION:
+      from_secret: destination
+    GCP_KEY_BASE64:
+      from_secret: gcp_key_base64
+    GITHUB_TOKEN:
+      from_secret: github_token
+    GPG_PASSPHRASE:
+      from_secret: packages_gpg_passphrase
+    GPG_PRIVATE_KEY:
+      from_secret: packages_gpg_private_key
+    GPG_PUBLIC_KEY:
+      from_secret: packages_gpg_public_key
+  image: grafana/grafana-build:dev-66149b8
+  name: rgm-build
+  volumes:
+  - name: docker
+    path: /var/run/docker.sock
+- commands:
+  - printenv GCP_KEY_BASE64 | base64 -d > /tmp/key.json
+  - gcloud auth activate-service-account --key-file=/tmp/key.json
+  - gcloud storage cp -r $${DRONE_WORKSPACE}/dist/nightly-${DRONE_COMMIT_SHA:0:8}
+    $${DESTINATION}/nightly/nightly-${DRONE_COMMIT_SHA:0:8}
+  depends_on:
+  - rgm-build
+  environment:
+    _EXPERIMENTAL_DAGGER_CLOUD_TOKEN:
+      from_secret: dagger_token
+    DESTINATION:
+      from_secret: destination
+    GCP_KEY_BASE64:
+      from_secret: gcp_key_base64
+    GITHUB_TOKEN:
+      from_secret: github_token
+    GPG_PASSPHRASE:
+      from_secret: packages_gpg_passphrase
+    GPG_PRIVATE_KEY:
+      from_secret: packages_gpg_private_key
+    GPG_PUBLIC_KEY:
+      from_secret: packages_gpg_public_key
+  image: google/cloud-sdk:alpine
+  name: rgm-copy
+trigger:
+  event:
+    include:
+    - promote
+  target:
+    include:
+    - nightly
+type: docker
+volumes:
+- host:
+    path: /var/run/docker.sock
   name: docker
 ---
 clone:
@@ -4729,6 +4939,6 @@ kind: secret
 name: gcr_credentials
 ---
 kind: signature
-hmac: 883d9f0e14f52a0b773040eeb476f3081b8122b34d5c14ad4f81219ceb754299
+hmac: b5a75db5d4786427d6d2e4cf9ee7d690a2fa5f4e16dc7f1b177383c188e5da51
 
 ...

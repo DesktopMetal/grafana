@@ -73,10 +73,29 @@ tag_trigger = {
     },
 }
 
-def rgm_build(script = "drone_publish_main.sh", canFail = True):
+nightly_trigger = {
+    "event": {
+        "include": [
+            "promote",
+            # "cron",
+        ],
+    },
+    "target": {
+        "include": [
+            "nightly",
+        ],
+    },
+    # "cron": {
+    #     "include": [
+    #         "nightly-release",
+    #     ],
+    # },
+}
+
+def rgm_build(script = "drone_publish_main.sh"):
     rgm_build_step = {
         "name": "rgm-build",
-        "image": "grafana/grafana-build:main",
+        "image": "grafana/grafana-build:dev-66149b8",
         "commands": [
             "export GRAFANA_DIR=$$(pwd)",
             "cd /src && ./scripts/{}".format(script),
@@ -86,11 +105,26 @@ def rgm_build(script = "drone_publish_main.sh", canFail = True):
         # In the future we should find a way to use dagger without mounting the docker socket.
         "volumes": [{"name": "docker", "path": "/var/run/docker.sock"}],
     }
-    if canFail:
-        rgm_build_step["failure"] = "ignore"
 
     return [
         rgm_build_step,
+    ]
+
+def rgm_copy(src, dst):
+    rgm_copy_step = {
+        "name": "rgm-copy",
+        "image": "google/cloud-sdk:alpine",
+        "commands": [
+            "printenv GCP_KEY_BASE64 | base64 -d > /tmp/key.json",
+            "gcloud auth activate-service-account --key-file=/tmp/key.json",
+            "gcloud storage cp -r {} {}".format(src, dst),
+        ],
+        "environment": rgm_env_secrets,
+        "depends_on": ["rgm-build"],
+    }
+
+    return [
+        rgm_copy_step,
     ]
 
 def rgm_main():
@@ -108,7 +142,7 @@ def rgm_main():
     return pipeline(
         name = "rgm-main-prerelease",
         trigger = trigger,
-        steps = rgm_build(canFail = True),
+        steps = rgm_build(),
         depends_on = ["main-test-backend", "main-test-frontend"],
     )
 
@@ -116,8 +150,19 @@ def rgm_tag():
     return pipeline(
         name = "rgm-tag-prerelease",
         trigger = tag_trigger,
-        steps = rgm_build(script = "drone_publish_tag_grafana.sh", canFail = False),
+        steps = rgm_build(script = "drone_publish_tag_grafana.sh"),
         depends_on = ["release-test-backend", "release-test-frontend"],
+    )
+
+def rgm_nightly():
+    ver = "nightly-${DRONE_COMMIT_SHA:0:8}"
+    dst = "$${{DESTINATION}}/nightly/{}".format(ver)
+    src = "$${{DRONE_WORKSPACE}}/dist/{}".format(ver)
+    return pipeline(
+        name = "rgm-nightly-prerelease",
+        trigger = nightly_trigger,
+        steps = rgm_build(script = "drone_build_nightly_grafana.sh") + rgm_copy(src, dst),
+        depends_on = ["nightly-test-backend", "nightly-test-frontend"],
     )
 
 def rgm_windows():
@@ -139,9 +184,12 @@ def rgm():
         whats_new_checker_pipeline(tag_trigger),
         test_frontend(tag_trigger, "release"),
         test_backend(tag_trigger, "release"),
+        test_frontend(nightly_trigger, "nightly"),
+        test_backend(nightly_trigger, "nightly"),
         rgm_main(),
         rgm_tag(),
         rgm_windows(),
+        rgm_nightly(),
         verify_release_pipeline(
             trigger = tag_trigger,
             name = "rgm-tag-verify-prerelease-assets",
