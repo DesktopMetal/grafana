@@ -28,13 +28,13 @@ export function NewsContainer({ className }: NewsContainerProps) {
             <div className={styles.title}>
               <Text element="h3">{t('news.title', 'Latest from Desktop Metal')}</Text>
               <a
-                href="https://ir.desktopmetal.com/news/press-releases/rss"
+                href="https://ir.desktopmetal.com/news/press-releases"
                 target="_blank"
                 rel="noreferrer"
                 title="Go to Desktop Metal Investor Relations site"
                 className={styles.grot}
               >
-                <img src="public/img/grot-news.svg" alt="Grot reading news" />
+                <img src="public/img/desktopmetal-logo.svg" alt="Desktop Metal Logo" />
               </a>
               <div className={styles.actions}>
                 <Button

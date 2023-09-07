@@ -39,8 +39,8 @@ export function NewsWrapper({ feedUrl }: NewsWrapperProps) {
           <News key={index} index={index} showImage width={widthMeasure.width} data={state.value} />
         ))}
       <div className={styles.grot}>
-        <a href="https://grafana.com/blog/" target="_blank" rel="noreferrer" title="Go to Grafana labs blog">
-          <img src="public/img/grot-news.svg" alt="Grot reading news" />
+        <a href="https://ir.desktopmetal.com/news/press-releases" target="_blank" rel="noreferrer" title="Desktop Metal - Investor Relations">
+          <img src="public/img/desktopmetal-logo.svg" alt="Desktop Metal Logo" />
         </a>
       </div>
     </div>

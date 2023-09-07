@@ -24,9 +24,9 @@ const LoginBackground: FC<BrandComponentProps> = ({ className, children }) => {
       right: 0;
       bottom: 0;
       top: 0;
-      background: url(public/img/dm-background-{theme.isDark ? 'dark' : 'light'}.svg);
+      background: url(public/img/dm_background-dark.svg);
       background-position: top center;
-      background-size: auto;
+      background-size: contain;
       background-repeat: no-repeat;
 
       opacity: 0;
