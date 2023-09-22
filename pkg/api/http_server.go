@@ -698,7 +698,7 @@ func (hs *HTTPServer) healthzHandler(ctx *web.Context) {
 // can access the database. If the database cannot be accessed it will return
 // http status code 503.
 func (hs *HTTPServer) apiHealthHandler(ctx *web.Context) {
-	notHeadOrGet := ctx.Req.Method != http.MethodGet && ctx.Req.Method != http.MethodHead
+	notHeadOrGet := ctx.Req.Method != http.MethodPost && ctx.Req.Method != http.MethodGet && ctx.Req.Method != http.MethodHead
 	if notHeadOrGet || ctx.Req.URL.Path != "/api/health" {
 		return
 	}
