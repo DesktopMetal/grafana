@@ -39,12 +39,16 @@ title: Grafana documentation
         <img src="/static/img/logos/logo-docker.svg">
         <h5>Run Docker image</h5>
     </a>
+    <a href="{{< relref "setup-grafana/installation/kubernetes/" >}}" class="nav-cards__item nav-cards__item--install">
+        <img src="/static/img/logos/logo-kubernetes.svg">
+        <h5>Run on Kubernetes</h5>
+    </a>
     <a href="https://grafana.com/docs/grafana-cloud/" class="nav-cards__item nav-cards__item--install">
         <div class="nav-cards__icon fa fa-cloud">
         </div>
         <h5>Grafana Cloud</h5>
     </a>
-    <a href="https://grafana.com/grafana/nightly?edition=oss" class="nav-cards__item nav-cards__item--install">
+    <a href="https://grafana.com/grafana/download/nightly?edition=oss" class="nav-cards__item nav-cards__item--install">
         <div class="nav-cards__icon fa fa-moon-o">
         </div>
         <h5>Nightly builds</h5>

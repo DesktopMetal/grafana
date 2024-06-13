@@ -40,7 +40,7 @@ import { buildMetadataQuery } from './influxql_query_builder';
 import { prepareAnnotation } from './migrations';
 import { buildRawQuery } from './queryUtils';
 import ResponseParser from './response_parser';
-import { DEFAULT_POLICY, InfluxOptions, InfluxQuery, InfluxVersion } from './types';
+import { DEFAULT_POLICY, InfluxOptions, InfluxQuery, InfluxQueryTag, InfluxVersion } from './types';
 
 export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery, InfluxOptions> {
   type: string;
@@ -212,6 +212,13 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
 
     if (this.isMigrationToggleOnAndIsAccessProxy()) {
       query = this.applyVariables(query, scopedVars, rest);
+      if (query.adhocFilters?.length) {
+        const adhocFiltersToTags: InfluxQueryTag[] = (query.adhocFilters ?? []).map((af) => {
+          const { condition, ...asTag } = af;
+          return asTag;
+        });
+        query.tags = [...(query.tags ?? []), ...adhocFiltersToTags];
+      }
     }
 
     return query;
@@ -335,7 +342,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         rawQuery: true,
       },
       this.templateSrv,
-      options.scopedVars
+      options?.scopedVars
     ).render(true);
 
     return lastValueFrom(this._seriesQuery(interpolated, options)).then((resp) => {
@@ -345,13 +352,11 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
 
   // By implementing getTagKeys and getTagValues we add ad-hoc filters functionality
   // Used in public/app/features/variables/adhoc/picker/AdHocFilterKey.tsx::fetchFilterKeys
-  getTagKeys(options: InfluxQuery) {
+  getTagKeys(options?: InfluxQuery) {
     const query = buildMetadataQuery({
       type: 'TAG_KEYS',
       templateService: this.templateSrv,
       database: this.database,
-      measurement: options.measurement ?? '',
-      tags: [],
     });
     return this.metricFindQuery(query, options);
   }
@@ -362,8 +367,6 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
       templateService: this.templateSrv,
       database: this.database,
       withKey: options.key,
-      measurement: options.measurement ?? '',
-      tags: [],
     });
     return this.metricFindQuery(query, options);
   }

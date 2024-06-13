@@ -278,6 +278,9 @@ type Cfg struct {
 	AdminEmail                   string
 	DisableSyncLock              bool
 	DisableLoginForm             bool
+	IDResponseHeaderEnabled      bool
+	IDResponseHeaderPrefix       string
+	IDResponseHeaderNamespaces   map[string]struct{}
 	// Not documented & not supported
 	// stand in until a more complete solution is implemented
 	AuthConfigUIAdminAccess bool
@@ -367,9 +370,10 @@ type Cfg struct {
 	DateFormats DateFormats
 
 	// User
-	UserInviteMaxLifetime time.Duration
-	HiddenUsers           map[string]struct{}
-	CaseInsensitiveLogin  bool // Login and Email will be considered case insensitive
+	UserInviteMaxLifetime        time.Duration
+	HiddenUsers                  map[string]struct{}
+	CaseInsensitiveLogin         bool // Login and Email will be considered case insensitive
+	VerificationEmailMaxLifetime time.Duration
 
 	// Service Accounts
 	SATokenExpirationDayLimit int
@@ -1565,6 +1569,17 @@ func readAuthSettings(iniFile *ini.File, cfg *Cfg) (err error) {
 	// Azure Auth
 	AzureAuthEnabled = auth.Key("azure_auth_enabled").MustBool(false)
 	cfg.AzureAuthEnabled = AzureAuthEnabled
+
+	// ID response header
+	cfg.IDResponseHeaderEnabled = auth.Key("id_response_header_enabled").MustBool(false)
+	cfg.IDResponseHeaderPrefix = auth.Key("id_response_header_prefix").MustString("X-Grafana-")
+
+	idHeaderNamespaces := util.SplitString(auth.Key("id_response_header_namespaces").MustString(""))
+	cfg.IDResponseHeaderNamespaces = make(map[string]struct{}, len(idHeaderNamespaces))
+	for _, namespace := range idHeaderNamespaces {
+		cfg.IDResponseHeaderNamespaces[namespace] = struct{}{}
+	}
+
 	readAuthAzureADSettings(cfg)
 
 	// Google Auth
@@ -1709,6 +1724,13 @@ func readUserSettings(iniFile *ini.File, cfg *Cfg) error {
 			cfg.HiddenUsers[user] = struct{}{}
 		}
 	}
+
+	verificationEmailMaxLifetimeVal := valueAsString(users, "verification_email_max_lifetime_duration", "1h")
+	verificationEmailMaxLifetimeDuration, err := gtime.ParseDuration(verificationEmailMaxLifetimeVal)
+	if err != nil {
+		return err
+	}
+	cfg.VerificationEmailMaxLifetime = verificationEmailMaxLifetimeDuration
 
 	return nil
 }

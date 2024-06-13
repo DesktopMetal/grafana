@@ -138,7 +138,7 @@ By default, you cannot edit resources provisioned via Terraform from the UI. Thi
 
 **Note:**
 
-You can re-use the same templates across many contact points. In the example above, a shared template ie embedded using the statement `{{ template “Alert Instance Template” . }}`
+You can reuse the same templates across many contact points. In the example above, a shared template ie embedded using the statement `{{ template “Alert Instance Template” . }}`
 
 This fragment can then be managed separately in Terraform:
 
@@ -353,15 +353,15 @@ When the alert fires, Grafana routes a notification through the policy you defin
 For example, if you chose Slack as a contact point, Grafana’s embedded [Alertmanager](https://github.com/prometheus/alertmanager) automatically posts a message to Slack.
 
 {{% docs/reference %}}
-[alerting-rules]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/alerting-rules"
+[alerting-rules]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/alerting/alerting-rules"
 [alerting-rules]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/alerting-rules"
 
-[api-keys]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/administration/api-keys"
-[api-keys]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/administration/api-keys"
+[api-keys]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/administration/api-keys"
+[api-keys]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA_VERSION>/administration/api-keys"
 
-[service-accounts]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/administration/service-accounts"
-[service-accounts]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/administration/service-accounts"
+[service-accounts]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/administration/service-accounts"
+[service-accounts]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA_VERSION>/administration/service-accounts"
 
-[testdata]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/datasources/testdata"
-[testdata]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/datasources/testdata"
+[testdata]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/datasources/testdata"
+[testdata]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA_VERSION>/datasources/testdata"
 {{% /docs/reference %}}

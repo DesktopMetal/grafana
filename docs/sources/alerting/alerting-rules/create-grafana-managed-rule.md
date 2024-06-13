@@ -30,6 +30,9 @@ Multiple alert instances can be created as a result of one alert rule (also know
 
 Grafana managed alert rules can only be edited or deleted by users with Edit permissions for the folder storing the rules.
 
+If you delete an alerting resource created in the UI, you can no longer retrieve it.
+To make a backup of your configuration and to be able to restore deleted alerting resources, create your alerting resources using file provisioning, Terraform, or the Alerting API.
+
 Watch this video to learn more about creating alert rules: {{< vimeo 720001934 >}}
 
 In the following sections, we’ll guide you through the process of creating your Grafana-managed alert rules.
@@ -65,7 +68,10 @@ Define a query to get the data you want to measure and a condition that needs to
 1. Add one or more [expressions][expression-queries].
    a. For each expression, select either **Classic condition** to create a single alert rule, or choose from the **Math**, **Reduce**, and **Resample** options to generate separate alert for each series.
 
-   For details on these options, see [Single and multi dimensional rule]
+   {{% admonition type="note" %}}
+   When using Prometheus, you can use an instant vector and built-in functions, so you don't need to add additional expressions.
+   {{% /admonition %}}
+
    b. Click **Preview** to verify that the expression is successful.
 
 1. Click **Set as alert condition** on the query or expression you want to set as your alert condition.
@@ -91,11 +97,11 @@ To do this, you need to make sure that your alert rule is in the right evaluatio
 
 1. Turn on pause alert notifications, if required.
 
-   **Note**:
-
-   Pause alert rule evaluation to prevent noisy alerting while tuning your alerts. Pausing stops alert rule evaluation and does not create any alert instances. This is different to mute timings, which stop notifications from being delivered, but still allow for alert rule evaluation and the creation of alert instances.
-
-   You can pause alert rule evaluation to prevent noisy alerting while tuning your alerts. Pausing stops alert rule evaluation and does not create any alert instances. This is different to mute timings, which stop notifications from being delivered, but still allow for alert rule evaluation and the creation of alert instances.
+   {{< admonition type="note" >}}
+   You can pause alert rule evaluation to prevent noisy alerting while tuning your alerts.
+   Pausing stops alert rule evaluation and doesn't create any alert instances.
+   This is different to mute timings, which stop notifications from being delivered, but still allows for alert rule evaluation and the creation of alert instances.
+   {{< /admonition >}}
 
 1. In **Configure no data and error handling**, configure alerting behavior in the absence of data.
 
@@ -194,21 +200,21 @@ An alert instance is considered stale if its dimension or series has disappeared
 Stale alert instances that are in the **Alerting**/**NoData**/**Error** states are automatically marked as **Resolved** and the grafana_state_reason annotation is added to the alert instance with the reason **MissingSeries**.
 
 {{% docs/reference %}}
-[add-a-query]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data#add-a-query"
-[add-a-query]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data#add-a-query"
+[add-a-query]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data#add-a-query"
+[add-a-query]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data#add-a-query"
 
-[alerting-on-numeric-data]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/fundamentals/evaluate-grafana-alerts#alerting-on-numeric-data-1")
-[alerting-on-numeric-data]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/evaluate-grafana-alerts#alerting-on-numeric-data-1")
+[alerting-on-numeric-data]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/evaluate-grafana-alerts#alerting-on-numeric-data-1"
+[alerting-on-numeric-data]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/evaluate-grafana-alerts#alerting-on-numeric-data-1"
 
-[annotation-label]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/fundamentals/annotation-label"
+[annotation-label]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label"
 [annotation-label]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label"
 
-[expression-queries]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/expression-queries"
-[expression-queries]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/panels-visualizations/query-transform-data/expression-queries"
+[expression-queries]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries"
+[expression-queries]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA_VERSION>/panels-visualizations/query-transform-data/expression-queries"
 
-[fundamentals]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/fundamentals"
+[fundamentals]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals"
 [fundamentals]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals"
 
-[time-units-and-relative-ranges]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/dashboards/use-dashboards#time-units-and-relative-ranges"
-[time-units-and-relative-ranges]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA VERSION>/dashboards/use-dashboards#time-units-and-relative-ranges"
+[time-units-and-relative-ranges]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/dashboards/use-dashboards#time-units-and-relative-ranges"
+[time-units-and-relative-ranges]: "/docs/grafana-cloud/ -> /docs/grafana/<GRAFANA_VERSION>/dashboards/use-dashboards#time-units-and-relative-ranges"
 {{% /docs/reference %}}

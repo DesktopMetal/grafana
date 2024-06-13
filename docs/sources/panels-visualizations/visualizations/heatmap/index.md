@@ -14,12 +14,12 @@ labels:
     - enterprise
     - oss
 title: Heatmap
-weight: 600
+weight: 100
 ---
 
 # Heatmap
 
-The Heatmap panel visualization allows you to view histograms over time. For more information about histograms, refer to [Introduction to histograms and heatmaps]({{< relref "../../../fundamentals/intro-histograms/" >}}).
+Heatmaps allow you to view histograms over time. For more information about histograms, refer to [Introduction to histograms and heatmaps]({{< relref "../../../fundamentals/intro-histograms/" >}}).
 
 ![](/static/img/docs/v43/heatmap_panel_cover.jpg)
 
@@ -78,6 +78,8 @@ This setting configures the axis value.
 ### Reverse
 
 When selected, the axis appears in reverse order.
+
+{{< docs/shared lookup="visualizations/multiple-y-axes.md" source="grafana" version="<GRAFANA VERSION>" leveloffset="+2" >}}
 
 ## Colors
 

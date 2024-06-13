@@ -23,7 +23,7 @@ After you add custom options, [uncomment](#remove-comments-in-the-ini-files) the
 
 The default settings for a Grafana instance are stored in the `$WORKING_DIR/conf/defaults.ini` file. _Do not_ change this file.
 
-Depending on your OS, your custom configuration file is either the `$WORKING_DIR/conf/defaults.ini` file or the `/usr/local/etc/grafana/grafana.ini` file. The custom configuration file path can be overridden using the `--config` parameter.
+Depending on your OS, your custom configuration file is either the `$WORKING_DIR/conf/custom.ini` file or the `/usr/local/etc/grafana/grafana.ini` file. The custom configuration file path can be overridden using the `--config` parameter.
 
 ### Linux
 
@@ -151,6 +151,8 @@ environment variable `HOSTNAME`, if that is empty or does not exist Grafana will
 ### force_migration
 
 Force migration will run migrations that might cause data loss. Default is `false`.
+
+Set force_migration=true in your grafana.ini and restart Grafana to roll back and delete Unified Alerting configuration data. Any alert rules created while using Unified Alerting will be deleted by rolling back.
 
 <hr />
 
@@ -359,7 +361,7 @@ The maximum number of connections in the idle connection pool.
 
 ### max_open_conn
 
-The maximum number of open connections to the database.
+The maximum number of open connections to the database. For MYSQL, configure this setting on both Grafana and the database. For more information, refer to [`sysvar_max_connections`](https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_max_connections).
 
 ### conn_max_lifetime
 
@@ -810,9 +812,9 @@ that this organization already exists. Default is 1.
 
 ### auto_assign_org_role
 
-The role new users will be assigned for the main organization (if the
-`auto_assign_org` setting is set to true). Defaults to `Viewer`, other valid
-options are `Admin` and `Editor`. e.g.:
+The `auto_assign_org_role` setting determines the default role assigned to new users
+in the main organization (if `auto_assign_org` setting is set to true).
+The available options are `Viewer` (default), `Admin`, `Editor`, and `None`. For example:
 
 `auto_assign_org_role = Viewer`
 
@@ -1152,6 +1154,32 @@ The client ID to use for user-assigned managed identity.
 
 Should be set for user-assigned identity and should be empty for system-assigned identity.
 
+### workload_identity_enabled
+
+Specifies whether Azure AD Workload Identity authentication should be enabled in datasources that support it.
+
+For more documentation on Azure AD Workload Identity, review [Azure AD Workload Identity](https://azure.github.io/azure-workload-identity/docs/) documentation.
+
+Disabled by default, needs to be explicitly enabled.
+
+### workload_identity_tenant_id
+
+Tenant ID of the Azure AD Workload Identity.
+
+Allows to override default tenant ID of the Azure AD identity associated with the Kubernetes service account.
+
+### workload_identity_client_id
+
+Client ID of the Azure AD Workload Identity.
+
+Allows to override default client ID of the Azure AD identity associated with the Kubernetes service account.
+
+### workload_identity_token_file
+
+Custom path to token file for the Azure AD Workload Identity.
+
+Allows to set a custom path to the projected service account token file.
+
 ### user_identity_enabled
 
 Specifies whether user identity authentication (on behalf of currently signed-in user) should be enabled in datasources that support it (requires AAD authentication).
@@ -1472,6 +1500,34 @@ Specify the frequency of polling for Alertmanager config changes. The default va
 
 The interval string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
 
+### ha_redis_address
+
+The Redis server address that should be connected to.
+
+### ha_redis_username
+
+The username that should be used to authenticate with the Redis server.
+
+### ha_redis_password
+
+The password that should be used to authenticate with the Redis server.
+
+### ha_redis_db
+
+The Redis database. The default value is `0`.
+
+### ha_redis_prefix
+
+A prefix that is used for every key or channel that is created on the Redis server as part of HA for alerting.
+
+### ha_redis_peer_name
+
+The name of the cluster peer that will be used as an identifier. If none is provided, a random one will be generated.
+
+### ha_redis_max_conns
+
+The maximum number of simultaneous Redis connections.
+
 ### ha_listen_address
 
 Listen IP address and port to receive unified alerting messages for other Grafana instances. The port is used for both TCP and UDP. It is assumed other Grafana instances are also running on the same port. The default value is `0.0.0.0:9094`.
@@ -1491,6 +1547,10 @@ be assigned a position (e.g. 0, 1). We then multiply this position with the time
 each instance wait before sending the notification to take into account replication lag. The default value is `15s`.
 
 The interval string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
+
+### ha_label
+
+The label is an optional string to include on each packet and stream. It uniquely identifies the cluster and prevents cross-communication issues when sending gossip messages in an environment with multiple clusters.
 
 ### ha_gossip_interval
 
@@ -1512,13 +1572,13 @@ Enable or disable alerting rule execution. The default value is `true`. The aler
 
 ### evaluation_timeout
 
-Sets the alert evaluation timeout when fetching data from the datasource. The default value is `30s`. This option has a [legacy version in the alerting section]({{< relref "#evaluation_timeout_seconds" >}}) that takes precedence.
+Sets the alert evaluation timeout when fetching data from the data source. The default value is `30s`. This option has a [legacy version in the alerting section]({{< relref "#evaluation_timeout_seconds" >}}) that takes precedence.
 
 The timeout string is a possibly signed sequence of decimal numbers, followed by a unit suffix (ms, s, m, h, d), e.g. 30s or 1m.
 
 ### max_attempts
 
-Sets a maximum number of times we'll attempt to evaluate an alert rule before giving up on that evaluation. The default value is `3`. This option has a [legacy version in the alerting section]({{< relref "#max_attempts-1" >}}) that takes precedence.
+Sets a maximum number of times we'll attempt to evaluate an alert rule before giving up on that evaluation. The default value is `1`.
 
 ### min_interval
 

@@ -25,7 +25,7 @@ weight: 200
 Usage insights enables you to have a better understanding of how your Grafana instance is used.
 
 {{% admonition type="note" %}}
-Available in [Grafana Enterprise]({{< relref "../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud Pro and Advanced](/docs/grafana-cloud/). Grafana Cloud insights logs include additional fields with their own dashboards. Read more in the [Grafana Cloud documentation](/docs/grafana-cloud/usage-insights/).
+Available in [Grafana Enterprise]({{< relref "../../introduction/grafana-enterprise/" >}}) and [Grafana Cloud](/docs/grafana-cloud/). Grafana Cloud insights logs include additional fields with their own dashboards. Read more in the [Grafana Cloud documentation](/docs/grafana-cloud/usage-insights/).
 {{% /admonition %}}
 
 The usage insights feature collects a number of aggregated data and stores them in the database:
@@ -95,9 +95,22 @@ To change _recent_ to something other than the past 10 minutes, edit the [config
 
 ```ini
 [analytics.views]
-# Set age for recent active users
+
+# Set age for recent active users to 10 minutes
 recent_users_age = 10m
 ```
+
+To disable the presence indicator, edit the [configuration][] file as follows:
+
+```ini
+[analytics.views]
+
+
+# Disables the presence indicator
+recent_users_age = 0
+```
+
+The dashboard won't show any avatars and thus no recent user activity.
 
 ## Sort dashboards by using insights data
 

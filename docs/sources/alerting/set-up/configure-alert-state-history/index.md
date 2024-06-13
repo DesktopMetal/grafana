@@ -9,16 +9,12 @@ keywords:
   - alert state history
 labels:
   products:
-    - cloud
+    - oss
 title: Configure Alert State History
 weight: 600
 ---
 
 # Configure Alert State History
-
-{{% admonition type="note" %}}
-This applies to Open Source only. There is no configuration required if you are using Grafana Cloud.
-{{% /admonition %}}
 
 Starting with Grafana 10, Alerting can record all alert rule state changes for your Grafana managed alert rules in a Loki instance.
 

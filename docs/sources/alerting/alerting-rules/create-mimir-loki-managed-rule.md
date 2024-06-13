@@ -28,6 +28,9 @@ Create alert rules for an external Grafana Mimir or Loki instance that has ruler
 
 Alert rules for an external Grafana Mimir or Loki instance can be edited or deleted by users with Editor or Admin roles.
 
+If you delete an alerting resource created in the UI, you can no longer retrieve it.
+To make a backup of your configuration and to be able to restore deleted alerting resources, create your alerting resources using file provisioning, Terraform, or the Alerting API.
+
 ## Before you begin
 
 - Verify that you have write permission to the Prometheus or Loki data source. Otherwise, you will not be able to create or update Grafana Mimir managed alert rules.
@@ -89,7 +92,7 @@ Use alert rule evaluation to determine how frequently an alert rule should be ev
 
 ## Add annotations
 
-Add [annotations][annotation-label]. to provide more context on the alert in your alert notifications.
+Add [annotations][annotation-label] to provide more context on the alert in your alert notifications.
 
 Annotations add metadata to provide more information on the alert in your alert notifications. For example, add a **Summary** annotation to tell you which value caused the alert to fire or which server it happened on.
 
@@ -123,15 +126,6 @@ All alert rules and instances, irrespective of their labels, match the default n
 1. Click **Save rule**.
 
 {{% docs/reference %}}
-[alerting]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting"
-[alerting]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting"
-
-[annotation-label]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/fundamentals/annotation-label"
+[annotation-label]: "/docs/grafana/ -> /docs/grafana/<GRAFANA_VERSION>/alerting/fundamentals/annotation-label"
 [annotation-label]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals/annotation-label"
-
-[edit-mimir-loki-namespace-group]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/alerting-rules/edit-mimir-loki-namespace-group"
-[edit-mimir-loki-namespace-group]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/alerting-rules/edit-mimir-loki-namespace-group"
-
-[fundamentals]: "/docs/grafana/ -> /docs/grafana/<GRAFANA VERSION>/alerting/fundamentals"
-[fundamentals]: "/docs/grafana-cloud/ -> /docs/grafana-cloud/alerting-and-irm/alerting/fundamentals"
 {{% /docs/reference %}}
